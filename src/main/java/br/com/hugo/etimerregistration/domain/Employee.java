@@ -33,4 +33,8 @@ public class Employee extends PersistEntity {
         }
     }
 
+    @Override
+    public String toString() {
+        return String.format("%s - %s", name, pis);
+    }
 }

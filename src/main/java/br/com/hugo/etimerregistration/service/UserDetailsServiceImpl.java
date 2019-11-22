@@ -12,6 +12,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 import static java.util.Arrays.asList;
 
 @Service
@@ -25,10 +27,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String pis) throws UsernameNotFoundException {
-        Employee employee = service.getRepository().findByPis(pis);
-        if (employee == null) {
-            throw new UsernameNotFoundException(pis);
-        }
+        Optional<Employee> employeeOptional = service.getRepository().findByPis(pis);
+        Employee employee = employeeOptional.orElseThrow(() -> new UsernameNotFoundException(pis));
         return new UserSecurity(employee.getId(), employee.getPis(), employee.getPassword(), asList(EProfile.toEnum(employee.getProfile())));
     }
 
