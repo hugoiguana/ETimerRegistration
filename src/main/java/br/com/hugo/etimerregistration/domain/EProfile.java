@@ -2,6 +2,12 @@ package br.com.hugo.etimerregistration.domain;
 
 import lombok.Getter;
 
+/**
+ * The {@code EProfile} enum represents all employees profile used in the application.
+ *
+ * @author  Hugo Mota
+ * @since   1.0
+ */
 @Getter
 public enum EProfile {
 
@@ -10,7 +16,7 @@ public enum EProfile {
     private int code;
     private String role;
 
-    private EProfile(Integer code, String role) {
+    EProfile(Integer code, String role) {
         this.code = code;
         this.role = role;
     }

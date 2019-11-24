@@ -71,23 +71,23 @@ public class DateUtilTest {
 
     @Test
     public void isWorkingDay_return_true_when_passed_a_working_day() {
-        assertTrue(isWorkingDay(LOCAL_DATE_TIME_MONDAY));
-        assertTrue(isWorkingDay(LOCAL_DATE_TIME_TUESDAY));
-        assertTrue(isWorkingDay(LOCAL_DATE_TIME_WEDNESDAY));
-        assertTrue(isWorkingDay(LOCAL_DATE_TIME_THURSDAY));
-        assertTrue(isWorkingDay(LOCAL_DATE_TIME_FRIDAY));
+        assertTrue(isBusinessDay(LOCAL_DATE_TIME_MONDAY));
+        assertTrue(isBusinessDay(LOCAL_DATE_TIME_TUESDAY));
+        assertTrue(isBusinessDay(LOCAL_DATE_TIME_WEDNESDAY));
+        assertTrue(isBusinessDay(LOCAL_DATE_TIME_THURSDAY));
+        assertTrue(isBusinessDay(LOCAL_DATE_TIME_FRIDAY));
     }
 
     @Test
     public void isWorkingDay_return_false_when_passed_null() {
         LocalDateTime date = null;
-        assertFalse(isWorkingDay(date));
+        assertFalse(isBusinessDay(date));
     }
 
     @Test
     public void isWorkingDay_return_false_when_not_passed_a_working_day() {
-        assertFalse(isWorkingDay(LOCAL_DATE_TIME_SATURDAY));
-        assertFalse(isWorkingDay(LOCAL_DATE_TIME_SUNDAY));
+        assertFalse(isBusinessDay(LOCAL_DATE_TIME_SATURDAY));
+        assertFalse(isBusinessDay(LOCAL_DATE_TIME_SUNDAY));
     }
 
 

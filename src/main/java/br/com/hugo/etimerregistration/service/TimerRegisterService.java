@@ -13,6 +13,12 @@ import java.util.Optional;
 
 import static br.com.hugo.etimerregistration.util.DateUtil.DT_FORMAT_DD_MM_YYYY_HH_MM;
 
+/**
+ * The {@code TimerRegisterService} class represents the TimerRegisterService's service.
+ *
+ * @author Hugo Mota
+ * @since  1.0
+ */
 @Service
 public class TimerRegisterService {
 
@@ -22,6 +28,13 @@ public class TimerRegisterService {
     @Autowired
     private EmployeeService employeeService;
 
+    /**
+     * Save a point for an employee.
+     *
+     * @param pis The Employee's PIS
+     * @param dateTimePoint
+     * @return {@code TimerRegister}
+     */
     @Transactional
     public TimerRegister registerPoint(String pis, LocalDateTime dateTimePoint) {
         Employee employee = employeeService.findByPis(pis);
@@ -31,6 +44,13 @@ public class TimerRegisterService {
         return repository.save(TimerRegister.builder().employee(employee).dateTimePoint(dateTimePoint).build());
     }
 
+    /**
+     * Return if a point has already been registered in the same minute for an employee.
+     *
+     * @param pis The Employee's PIS
+     * @param dateTimePoint
+     * @return {@code TimerRegister}
+     */
     @Transactional(readOnly = true)
     public boolean existsInSameMinute(String pis, LocalDateTime dateTimePoint) {
         Optional<TimerRegister> timerRegister = repository.findFirstByEmployeePisOrderByDateTimePointDesc(pis);

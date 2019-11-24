@@ -22,6 +22,12 @@ import static br.com.hugo.etimerregistration.util.DateUtil.toHourMinunteString;
 import static java.time.temporal.TemporalAdjusters.firstDayOfMonth;
 import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 
+/**
+ * The {@code TimerRegisterMonthService} class represents the TimerRegisterMonth's service.
+ *
+ * @author Hugo Mota
+ * @since  1.0
+ */
 @Service
 public class TimerRegisterMonthService {
 
@@ -38,12 +44,21 @@ public class TimerRegisterMonthService {
     private MapperFacade mapper;
 
 
+    /**
+     * Creates and returns the timerResgisterMonthSheetResource.
+     *
+     * This resorce contains complete time sheet information for a period
+     *
+     * @param pis Employees' pis {@code String}
+     * @param date Point Registration Period {@code LocalDate}
+     * @return the resource {@code TimerResgisterMonthSheetResource}
+     */
     @Transactional(readOnly = true)
-    public TimerResgisterMonthSheetResource createTimerRegisterMonthSheet(final String pis, final LocalDate dateStr) {
+    public TimerResgisterMonthSheetResource createTimerRegisterMonthSheet(final String pis, final LocalDate date) {
 
         Employee employee = employeeService.findByPis(pis);
-        LocalDateTime dtIni = LocalDateTime.of(dateStr, LocalTime.MIN).with(firstDayOfMonth());
-        LocalDateTime dtEnd = LocalDateTime.of(dateStr, LocalTime.MAX).with(lastDayOfMonth());
+        LocalDateTime dtIni = LocalDateTime.of(date, LocalTime.MIN).with(firstDayOfMonth());
+        LocalDateTime dtEnd = LocalDateTime.of(date, LocalTime.MAX).with(lastDayOfMonth());
 
         List<TimerRegister> trList = timerRegisterRepository.findAllByEmployeeIdAndDateTimePointBetween(employee.getId(), dtIni, dtEnd);
         List<TimerRegisterDay> trDayList = trDayService.createTimerRegisterDaySheet(trList, dtIni.toLocalDate(), dtEnd.toLocalDate());

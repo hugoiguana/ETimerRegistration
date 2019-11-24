@@ -21,6 +21,14 @@ import static java.time.Duration.between;
 import static java.util.Comparator.comparing;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
+/**
+ * The {@code TimerRegisterDayService} class represents the TimerRegisterDay's service.
+ *
+ * Contains methods that calculate point management information in a day.
+ *
+ * @author Hugo Mota
+ * @since  1.0
+ */
 @Service
 public class TimerRegisterDayService {
 
@@ -31,6 +39,16 @@ public class TimerRegisterDayService {
     private static final BigDecimal FIFTY_PERCENT = BigDecimal.valueOf(0.5);
     private static final BigDecimal ONE_HUNDRED_PERCENT = BigDecimal.valueOf(1);
 
+    /**
+     * Creates and returns a list of all employee points grouped by each interval day passed by parameter.
+     *
+     * This list returned is used to build the point sheet.
+     *
+     * @param trList list of TimerRegister {@code List}
+     * @param dtIni Start date of point records to be created {@code List}
+     * @param dtEnd End date of point records to be created {@code List}
+     * @return a list of TimerRegisterDay {@code List}
+     */
     public List<TimerRegisterDay> createTimerRegisterDaySheet(final List<TimerRegister> trList, final LocalDate dtIni, final LocalDate dtEnd) {
         List<TimerRegisterDay> trDayList = new ArrayList<>();
         LocalDate dtCurrent = dtIni;
@@ -38,7 +56,7 @@ public class TimerRegisterDayService {
             final LocalDate dtDay = dtCurrent;
             dtCurrent = dtCurrent.plusDays(NumberUtil.ONE_INT);
             List<LocalDateTime> dtDayPointList = getDateTimePointByDayOrderByDateTimePointAsc(trList, dtDay);
-            if (!isWorkingDay(dtDay) && isEmpty(dtDayPointList)) {
+            if (!isBusinessDay(dtDay) && isEmpty(dtDayPointList)) {
                 continue;
             }
             trDayList.add(createTimerRegisterDay(dtDayPointList, dtDay));
@@ -46,6 +64,15 @@ public class TimerRegisterDayService {
         return trDayList;
     }
 
+    /**
+     * Create and return an instance of TimerRegisterDay with information about all points taken in a day.
+     *
+     * This TimerRegisterDay returned is used to build the point sheet.
+     *
+     * @param dtDayPointList list of dates points {@code List}
+     * @param dtDay date point
+     * @return a TimerRegisterDay
+     */
     private TimerRegisterDay createTimerRegisterDay(final List<LocalDateTime> dtDayPointList, final LocalDate dtDay) {
         BigDecimal minWorked = ZERO;
         BigDecimal minRested = ZERO;
@@ -61,7 +88,7 @@ public class TimerRegisterDayService {
                     minRested = sum(minRested, minBetweenDates);
                 } else {
                     minWorked = sum(minWorked, minBetweenDates);
-                    minSpecial = sum(minSpecial, addSpecialMinWorked(dtDayPointBefore, dtDayPointCurrent, minWorked));
+                    minSpecial = sum(minSpecial, getSpecialMinWorked(dtDayPointBefore, dtDayPointCurrent, minWorked));
                 }
                 dtDayPointBefore = dtDayPointCurrent;
                 ++i;
@@ -69,7 +96,7 @@ public class TimerRegisterDayService {
         }
 
         BigDecimal minBalance = add(minWorked, minSpecial);
-        if (isWorkingDay(dtDay)) {
+        if (isBusinessDay(dtDay)) {
             minBalance = add(minBalance, MIN_TO_PAY_DAY);
         }
 
@@ -90,7 +117,21 @@ public class TimerRegisterDayService {
         return trDay;
     }
 
-    private BigDecimal addSpecialMinWorked(final LocalDateTime dtDayPointBefore, final LocalDateTime dtDayPointCurrent, final BigDecimal minWorked) {
+    /**
+     * Returns special hours worked.
+     *
+     * These hours are accounted as below:
+     *  From Monday to Friday every 60 minutes worked 60 minutes are counted.
+     *  On Saturdays every 60 minutes worked 90 minutes are counted.
+     *  On Sundays every 60 minutes worked 120 minutes are counted.
+     *  For work performed between 22:00 and 06:00 every 60 minutes worked, 72 minutes are counted.
+     *
+     * @param dtDayPointBefore
+     * @param dtDayPointCurrent
+     * @param dtDayPointCurrent minWorked
+     * @return value of special minutes worked {@code BigDecimal}
+     */
+    private BigDecimal getSpecialMinWorked(final LocalDateTime dtDayPointBefore, final LocalDateTime dtDayPointCurrent, final BigDecimal minWorked) {
         BigDecimal minBefore6am = getMinSpecialWorkingDaysBefore6Am(dtDayPointBefore, dtDayPointCurrent);
         BigDecimal minAfter10pm = getMinSpecialWorkingDaysAfter10PM(dtDayPointBefore, dtDayPointCurrent);
         BigDecimal minSaturday = getMinSpecialTimeSaturyday(dtDayPointCurrent, minWorked);
@@ -100,7 +141,7 @@ public class TimerRegisterDayService {
 
     private BigDecimal getMinSpecialWorkingDaysBefore6Am(final LocalDateTime dtPointBefore, final LocalDateTime dtPointCurrent) {
         BigDecimal minSpecial = ZERO;
-        if (isWorkingDay(dtPointCurrent)) {
+        if (isBusinessDay(dtPointCurrent)) {
             LocalDateTime dtMaxSpecialWorkingDays = LocalDateTime.of(dtPointCurrent.toLocalDate(), LocalTime.MIN).withHour(6);
             dtMaxSpecialWorkingDays = dtPointCurrent.isBefore(dtMaxSpecialWorkingDays) ? dtPointCurrent : dtMaxSpecialWorkingDays;
             if (dtPointBefore.isBefore(dtMaxSpecialWorkingDays)) {
@@ -112,7 +153,7 @@ public class TimerRegisterDayService {
 
     private BigDecimal getMinSpecialWorkingDaysAfter10PM(final LocalDateTime dtPointBefore, final LocalDateTime dtPointCurrent) {
         BigDecimal minSpecial = ZERO;
-        if (isWorkingDay(dtPointCurrent)) {
+        if (isBusinessDay(dtPointCurrent)) {
             LocalDateTime dtMinSpecial = LocalDateTime.of(dtPointCurrent.toLocalDate(), LocalTime.MIN).withHour(22);
             dtMinSpecial = dtPointBefore.isAfter(dtMinSpecial) ? dtPointBefore : dtMinSpecial;
             if (dtPointCurrent.isAfter(dtMinSpecial)) {
@@ -136,6 +177,13 @@ public class TimerRegisterDayService {
         return ZERO;
     }
 
+    /**
+     * Returns all filtered point sorted dates to one day.
+     *
+     * @param trList  {@code List}
+     * @param dtDay  {@code LocalDate}
+     * @return a list of dates point {@code List}
+     */
     private List<LocalDateTime> getDateTimePointByDayOrderByDateTimePointAsc(final List<TimerRegister> trList, final LocalDate dtDay) {
         List<LocalDateTime> trDayList = new ArrayList<>();
         if (trList != null && dtDay != null) {
@@ -148,6 +196,13 @@ public class TimerRegisterDayService {
         return trDayList;
     }
 
+    /**
+     * calculates and returns the amount of hours left to complete the requested amount of rest hours.
+     *
+     * @param hoursWorked  {@code BigDecimal}
+     * @param hoursRested  {@code BigDecimal}
+     * @return amount of hours left to complete the requested amount of rest hours {@code BigDecimal}
+     */
     private BigDecimal calcHoursRequiredLeftToRest(BigDecimal hoursWorked, BigDecimal hoursRested) {
         BigDecimal hoursReqLeftToRest = ZERO;
         if (lessThen(hoursRested, ONE)) {
@@ -159,6 +214,12 @@ public class TimerRegisterDayService {
         return hoursReqLeftToRest;
     }
 
+    /**
+     * Returns the minimum hours of rest
+     *
+     * @param hoursWorked  {@code BigDecimal}
+     * @return the minimum hours of rest {@code BigDecimal}
+     */
     private BigDecimal getHourMinToRest(BigDecimal hoursWorked) {
         BigDecimal hourMinToRest = ZERO;
         if (biggerThen(hoursWorked, SIX_BIG_D)) {
