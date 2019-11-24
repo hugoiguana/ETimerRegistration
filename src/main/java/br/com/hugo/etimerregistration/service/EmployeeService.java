@@ -19,7 +19,6 @@ public class EmployeeService {
     public static final String MSG_ERRO_EMPLOYEE_NOT_FOUND = "Funcionário com pis %s não encontrado";
 
     @Autowired
-    @Getter
     private EmployeeRepository repository;
 
     public Employee findByPis(String pis) {

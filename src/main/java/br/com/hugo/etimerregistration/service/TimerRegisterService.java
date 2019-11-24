@@ -4,24 +4,18 @@ import br.com.hugo.etimerregistration.domain.Employee;
 import br.com.hugo.etimerregistration.domain.TimerRegister;
 import br.com.hugo.etimerregistration.repository.TimerRegisterRepository;
 import br.com.hugo.etimerregistration.service.exception.AlreadyExistsTimerRegisterInSameMinuteToEmployee;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
-import static java.time.format.DateTimeFormatter.ofPattern;
+import static br.com.hugo.etimerregistration.util.DateUtil.DT_FORMAT_DD_MM_YYYY_HH_MM;
 
 @Service
 public class TimerRegisterService {
 
-    public static DateTimeFormatter DATE_TIME_FORMAT_HH_MM = ofPattern("dd/MM/yyyy hh:mm");
-    public static DateTimeFormatter DATE_TIME_FORMAT_HH_MM_SS = ofPattern("dd/MM/yyyy hh:mm:ss");
-
-    @Getter
     @Autowired
     private TimerRegisterRepository repository;
 
@@ -41,7 +35,8 @@ public class TimerRegisterService {
     public boolean existsInSameMinute(String pis, LocalDateTime dateTimePoint) {
         Optional<TimerRegister> timerRegister = repository.findFirstByEmployeePisOrderByDateTimePointDesc(pis);
         return timerRegister.filter(t ->
-                t.getDateTimePoint().format(DATE_TIME_FORMAT_HH_MM).equals(dateTimePoint.format(DATE_TIME_FORMAT_HH_MM)))
+                t.getDateTimePoint().format(DT_FORMAT_DD_MM_YYYY_HH_MM).equals(dateTimePoint.format(DT_FORMAT_DD_MM_YYYY_HH_MM)))
                 .isPresent();
     }
+
 }

@@ -4,6 +4,7 @@ import br.com.hugo.etimerregistration.config.secutiry.JWTUtil;
 import br.com.hugo.etimerregistration.config.secutiry.UserSecurity;
 import br.com.hugo.etimerregistration.domain.EProfile;
 import br.com.hugo.etimerregistration.domain.Employee;
+import br.com.hugo.etimerregistration.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,14 +21,14 @@ import static java.util.Arrays.asList;
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
-    private EmployeeService service;
+    private EmployeeRepository employeeRepository;
 
     @Autowired
     private JWTUtil jwtUtil;
 
     @Override
     public UserDetails loadUserByUsername(String pis) throws UsernameNotFoundException {
-        Optional<Employee> employeeOptional = service.getRepository().findByPis(pis);
+        Optional<Employee> employeeOptional = employeeRepository.findByPis(pis);
         Employee employee = employeeOptional.orElseThrow(() -> new UsernameNotFoundException(pis));
         return new UserSecurity(employee.getId(), employee.getPis(), employee.getPassword(), asList(EProfile.toEnum(employee.getProfile())));
     }

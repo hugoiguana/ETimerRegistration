@@ -1,6 +1,6 @@
 package br.com.hugo.etimerregistration.config.secutiry;
 
-import br.com.hugo.etimerregistration.dto.AuthenticationEmployeeDTO;
+import br.com.hugo.etimerregistration.controller.dto.AuthenticationEmployeeDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

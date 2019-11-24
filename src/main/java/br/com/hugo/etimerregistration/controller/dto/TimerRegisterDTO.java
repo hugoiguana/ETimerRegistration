@@ -1,4 +1,4 @@
-package br.com.hugo.etimerregistration.dto;
+package br.com.hugo.etimerregistration.controller.dto;
 
 import lombok.*;
 
