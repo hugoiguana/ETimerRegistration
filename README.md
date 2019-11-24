@@ -2,7 +2,7 @@
 
 > This is a simple project with Rest architecture that simulates employee point records.
 >
-> Activity planning can be viewed at https://trello.com/b/jUWpYAmy/etimerregistration;
+> Activity planning can be viewed at https://trello.com/b/jUWpYAmy/etimerregistration
 
 **Available end points:**
 
@@ -68,9 +68,8 @@ Response:
 }	
 ```
 
-- Note: Endpoints can be tested at https://reqbin.com/
-
-		
+- Note1: Endpoints can be tested at https://reqbin.com/
+- Note2: The application was deployed to Heroku and the  the endpoints can be test there.
 		
 
 **Tools / framework used:**
